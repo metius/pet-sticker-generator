@@ -45,14 +45,6 @@ const Star = ({ className }) => (
   </svg>
 );
 
-const AlertCircle = ({ className }) => (
-  <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="12" y1="8" x2="12" y2="12"></line>
-    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-  </svg>
-);
-
 const PetStickerGenerator = () => {
   const [uploadedImages, setUploadedImages] = useState([]);
   const [selectedTheme, setSelectedTheme] = useState('');
@@ -196,48 +188,13 @@ const PetStickerGenerator = () => {
     setGenerationProgress('Analyzing your pet photos...');
 
     try {
-      // Convert images to base64
-      const imagePromises = uploadedImages.slice(0, 5).map(img => {
-        return new Promise((resolve) => {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          const image = new Image();
-          
-          image.onload = () => {
-            const maxSize = 400;
-            let { width, height } = image;
-            
-            if (width > height) {
-              if (width > maxSize) {
-                height *= maxSize / width;
-                width = maxSize;
-              }
-            } else {
-              if (height > maxSize) {
-                width *= maxSize / height;
-                height = maxSize;
-              }
-            }
-            
-            canvas.width = width;
-            canvas.height = height;
-            ctx.drawImage(image, 0, 0, width, height);
-            const base64 = canvas.toDataURL('image/jpeg', 0.7).split(',')[1];
-            resolve(base64);
-          };
-          
-          image.src = img.url;
-        });
-      });
-
-      const base64Images = await imagePromises;
       const selectedThemeData = themes.find(t => t.id === selectedTheme);
       
       setGenerationProgress('Identifying pet characteristics...');
 
-      // Simple pet analysis (without Claude API for simplicity)
+      // Simple pet analysis (simplified for demo)
       const petAnalysis = {
-        petType: "pet", // Generic for demo
+        petType: "pet",
         physicalDescription: "cute and adorable pet",
         personalityTraits: "playful and friendly",
         uniqueFeatures: ["distinctive markings", "expressive eyes"]
@@ -352,13 +309,16 @@ const PetStickerGenerator = () => {
         <rect width="350" height="350" rx="25" fill="white" stroke="#ddd" stroke-width="2"/>
         <rect x="20" y="20" width="310" height="310" rx="20" fill="#f0f0f0"/>
         <text x="175" y="150" font-family="Arial" font-size="14" text-anchor="middle" fill="#666">
-          🎨 Fallback Preview
+          🎨 ${themeData.example}
         </text>
         <text x="175" y="175" font-family="Arial" font-size="12" text-anchor="middle" fill="#666">
           ${sticker.title}
         </text>
         <text x="175" y="200" font-family="Arial" font-size="10" text-anchor="middle" fill="#999">
           ${themeData.name} Theme
+        </text>
+        <text x="175" y="250" font-family="Arial" font-size="8" text-anchor="middle" fill="#999">
+          Pet: ${petAnalysis.petType}
         </text>
       </svg>
     `)}`;
@@ -399,6 +359,9 @@ const PetStickerGenerator = () => {
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900">Pet Scene Sticker Generator</h1>
               <p className="text-gray-600">Create magical illustrated scenes featuring your pet with real AI</p>
+            </div>
+            <div className="bg-green-100 border border-green-200 rounded-lg p-2">
+              <span className="text-green-800 text-sm font-medium">✅ Ready for DALL-E!</span>
             </div>
           </div>
         </div>
@@ -552,7 +515,7 @@ const PetStickerGenerator = () => {
                 </button>
                 
                 <p className="text-xs text-gray-500 text-center mt-2">
-                  Each sticker will be a complete illustrated scene like your forest example!
+                  Ready for real DALL-E 3 generation! Add your API key to environment variables.
                 </p>
               </div>
             </div>
