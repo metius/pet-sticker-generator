@@ -73,11 +73,11 @@ Provide a comprehensive analysis focusing on:
 - Environments that would suit their personality
 - Poses that capture their essence
 
-Respond with detailed JSON:
+IMPORTANT: Respond ONLY with valid JSON in this exact format, no additional text or explanations:
 {
   "petType": "specific animal type",
   "breed": "breed or mix if identifiable",
-  "size": "size category", 
+  "size": "size category",
   "physicalDescription": "detailed description of appearance including colors, markings, and distinctive features",
   "coatDetails": "fur/coat color, pattern, length, texture",
   "facialFeatures": "eye color, nose, ears, expression",
@@ -119,10 +119,30 @@ Be extremely detailed and specific - this will be used to generate personalized 
     });
 
     let analysisText = response.content[0].text;
-    
-    // Clean up response and parse JSON
-    analysisText = analysisText.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();
-    const petAnalysis = JSON.parse(analysisText);
+
+    // Extract JSON from Claude's response - handle various response formats
+    let jsonString = analysisText;
+
+    // Remove markdown code blocks
+    jsonString = jsonString.replace(/```json\s*/g, "").replace(/```\s*/g, "");
+
+    // Try to find JSON object in response
+    const jsonMatch = jsonString.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      jsonString = jsonMatch[0];
+    }
+
+    // Clean up common issues
+    jsonString = jsonString.trim();
+
+    let petAnalysis;
+    try {
+      petAnalysis = JSON.parse(jsonString);
+    } catch (parseError) {
+      console.error('❌ JSON parsing failed. Raw response:', analysisText);
+      console.error('❌ Cleaned JSON string:', jsonString);
+      throw new Error(`Failed to parse Claude response as JSON: ${parseError.message}`);
+    }
     
     console.log('✅ Pet analysis complete via Netlify function');
     console.log('Pet type:', petAnalysis.petType);
